@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Premium Reseller Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(-45deg, #4361ee, #7209b7, #f72585, #4cc9f0);
+      background-size: 400% 400%;
+      animation: gradientBG 12s ease infinite;
+      overflow: hidden;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .login-card {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      padding: 40px;
+      background: rgba(255, 255, 255, 0.1); 
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 25px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 25px 45px rgba(0,0,0,0.2);
+      text-align: center;
+      color: #fff;
+      animation: fadeIn 1.2s ease-out;
+      z-index: 10;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    h2 {
+      font-weight: 600;
+      margin-bottom: 30px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-size: 24px;
+    }
+
+    .input-box {
+      position: relative;
+      margin-bottom: 25px;
+    }
+
+    .input-box i {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255,255,255,0.8);
+      font-size: 18px;
+    }
+
+    .input-box input {
+      width: 100%;
+      padding: 13px 15px 13px 45px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      outline: none;
+      border-radius: 30px;
+      color: #fff;
+      font-size: 16px;
+      transition: 0.4s;
+    }
+
+    .input-box input:focus {
+      background: rgba(255, 255, 255, 0.3);
+      border: 1px solid rgba(255,255,255,0.5);
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 13px;
+      border-radius: 30px;
+      border: none;
+      background: #fff;
+      color: #333;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.4s;
+      text-transform: uppercase;
+    }
+
+    .btn-login:hover {
+      background: #4361ee;
+      color: #fff;
+      transform: translateY(-3px);
+    }
+
+    .circle {
+      position: absolute;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(5px);
+      border-radius: 50%;
+      z-index: 1;
+      animation: float 6s infinite ease-in-out;
+    }
+    .c1 { width: 150px; height: 150px; top: -50px; right: -50px; }
+    .c2 { width: 100px; height: 100px; bottom: -30px; left: -30px; animation-delay: 2s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="circle c1"></div>
+  <div class="circle c2"></div>
+
+  <div class="login-card">
+    <h2><i class="fas fa-user-tie"></i> Reseller Login</h2>
+    
+    <div class="input-box">
+      <i class="fas fa-user"></i>
+      <input type="text" id="resUser" placeholder="Username" required>
+    </div>
+
+    <div class="input-box">
+      <i class="fas fa-lock"></i>
+      <input type="password" id="resPass" placeholder="Password" required>
+    </div>
+
+    <button onclick="handleLogin()" class="btn-login">Login Now</button>
+  </div>
+
+  <script type="module">
+    import { db } from "./firebase-config.js";
+    import { ref, get } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+    window.handleLogin = async () => {
+      const user = document.getElementById('resUser').value.trim();
+      const pass = document.getElementById('resPass').value.trim();
+
+      if(!user || !pass) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Empty Fields',
+          text: 'Please enter both username and password!',
+          confirmButtonColor: '#4361ee'
+        });
+        return;
+      }
+
+      // Show Loading Animation
+      Swal.fire({
+        title: 'Verifying...',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
+      });
+
+      try {
+        const resRef = ref(db, `resellers/${user}`);
+        const snapshot = await get(resRef);
+
+        if (snapshot.exists()) {
+          const resData = snapshot.val();
+          if (String(resData.password) === String(pass)) {
+            localStorage.setItem("resellerID", user);
+            
+            // --- SUCCESS ANIMATION ---
+            Swal.fire({
+              icon: 'success',
+              title: 'Login Successful!',
+              text: 'Welcome back, ' + user,
+              timer: 1500,
+              showConfirmButton: false
+            }).then(() => {
+              window.location.href = "reseller-panel.html";
+            });
+
+          } else {
+            // --- WRONG PASSWORD ANIMATION ---
+            Swal.fire({
+              icon: 'error',
+              title: 'Invalid Password',
+              text: 'The password you entered is incorrect!',
+              confirmButtonColor: '#f72585'
+            });
+          }
+        } else {
+          // --- USER NOT FOUND ---
+          Swal.fire({
+            icon: 'error',
+            title: 'User Not Found',
+            text: 'Reseller ID does not exist!',
+            confirmButtonColor: '#7209b7'
+          });
+        }
+      } catch (err) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Database connection failed!'
+        });
+      }
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reseller Premium Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    :root {
+      --primary: #4361ee;
+      --glass: rgba(255, 255, 255, 0.15);
+      --glass-border: rgba(255, 255, 255, 0.2);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(-45deg, #4361ee, #7209b7, #f72585, #4cc9f0);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      padding: 20px;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .header {
+      background: var(--glass);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border: 1px solid var(--glass-border);
+      color: white;
+      padding: 15px 25px;
+      border-radius: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+
+    .container { max-width: 1000px; margin: 0 auto; }
+
+    .card {
+      background: var(--glass);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+      color: white;
+    }
+
+    h3 { margin-bottom: 20px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+
+    .form-group { margin-bottom: 15px; }
+
+    input, select {
+      width: 100%;
+      padding: 12px 15px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      color: white;
+      font-size: 15px;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    input::placeholder { color: rgba(255, 255, 255, 0.7); }
+    input:focus { background: rgba(255, 255, 255, 0.3); }
+
+    select option { background: #7209b7; color: white; }
+
+    .btn {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.4s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-add { background: #fff; color: var(--primary); width: 100%; justify-content: center; }
+    .btn-add:hover { background: var(--primary); color: #fff; transform: translateY(-3px); }
+
+    .btn-edit { background: #f39c12; color: white; margin-right: 5px; }
+    .btn-del { background: #f72585; color: white; }
+
+    .credit-box {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 8px 18px;
+      border-radius: 30px;
+      font-weight: 700;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th { text-align: left; padding: 15px; background: rgba(255, 255, 255, 0.1); }
+    td { padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+    
+    .logout-btn { background: none; border: none; color: white; font-size: 20px; cursor: pointer; transition: 0.3s; }
+    .logout-btn:hover { color: #f72585; transform: rotate(90deg); }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h2><i class="fas fa-gem"></i> Premium Panel</h2>
+    <div style="display: flex; align-items: center; gap: 15px;">
+      <span id="currentReseller" style="font-weight: 500;"></span>
+      <span class="credit-box"><i class="fas fa-coins"></i> <span id="myCredits">0</span></span>
+      <button onclick="logout()" class="logout-btn"><i class="fas fa-power-off"></i></button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <h3><i class="fas fa-user-plus"></i> New User Registration</h3>
+      <form id="addUserForm">
+        <div class="form-group">
+          <input type="text" id="uName" placeholder="Enter Username" required>
+        </div>
+        <div class="form-group">
+          <input type="password" id="uPass" placeholder="Enter Password" required>
+        </div>
+        <div class="form-group">
+          <select id="uPlan" required>
+            <option value="10,1">Standard: 10 Days (1 Credit)</option>
+            <option value="20,2">Business: 20 Days (2 Credits)</option>
+            <option value="30,3">Premium: 30 Days (3 Credits)</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-add">
+          <i class="fas fa-bolt"></i> Activate & Create Account
+        </button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3><i class="fas fa-users"></i> Management Console</h3>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Key</th>
+              <th>Status</th>
+              <th>Expiry</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="userTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { db } from "./firebase-config.js";
+    import { ref, set, get, update, onValue, remove } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+    const resID = localStorage.getItem("resellerID");
+    if (!resID) { window.location.href = "login.html"; }
+    document.getElementById('currentReseller').innerText = resID;
+
+    const resRef = ref(db, `resellers/${resID}`);
+    onValue(resRef, (snap) => {
+      const data = snap.val();
+      if(data) document.getElementById('myCredits').innerText = data.credits || 0;
+    });
+
+    const addUserForm = document.getElementById('addUserForm');
+    addUserForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('uName').value.trim();
+      const password = document.getElementById('uPass').value.trim();
+      
+      const planParts = document.getElementById('uPlan').value.split(','); 
+      const planDays = parseInt(planParts[0]);
+      const planCost = parseInt(planParts[1]);
+
+      const resSnap = await get(resRef);
+      const currentCredits = resSnap.val().credits || 0;
+
+      if (currentCredits < planCost) {
+        return Swal.fire('Error', 'Insufficient credits!', 'error');
+      }
+
+      Swal.fire({
+        title: 'Creating User...',
+        didOpen: () => { Swal.showLoading(); },
+        allowOutsideClick: false
+      });
+
+      const pad = n => n.toString().padStart(2, '0');
+      const now = new Date();
+      const rgtime = `${pad(now.getDate())}-${pad(now.getMonth() + 1)}-${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+      const expDate = new Date();
+      expDate.setDate(expDate.getDate() + planDays);
+      const validity = `${pad(expDate.getDate())}-${pad(expDate.getMonth() + 1)}-${expDate.getFullYear()} ${pad(expDate.getHours())}:${pad(expDate.getMinutes())}`;
+
+      const userRef = ref(db, `userinfo/${username}`);
+      const userSnap = await get(userRef);
+      
+      if(userSnap.exists()) {
+        return Swal.fire('Oops!', 'Username already taken!', 'warning');
+      }
+
+      try {
+        await set(userRef, {
+          username: username,
+          password: password,
+          status: 'active',
+          validity: validity,
+          access: '1',
+          device: 'null',
+          rgtime: rgtime,
+          owner: resID,
+          credit: planCost.toString()
+        });
+
+        await update(resRef, { credits: currentCredits - planCost });
+        Swal.fire('Success', 'User created successfully!', 'success');
+        addUserForm.reset();
+      } catch (err) { 
+        Swal.fire('Error', err.message, 'error'); 
+      }
+    });
+
+    onValue(ref(db, 'userinfo'), (snap) => {
+      const tbody = document.getElementById('userTableBody');
+      tbody.innerHTML = '';
+      const data = snap.val();
+      for (let key in data) {
+        if (data[key].owner === resID) {
+          tbody.innerHTML += `
+            <tr>
+              <td><b>${key}</b></td>
+              <td><code>${data[key].password}</code></td>
+              <td><span style="background:#2ecc71; padding:3px 8px; border-radius:5px; font-size:11px;">Active</span></td>
+              <td><span style="color:#4cc9f0; font-size:12px; font-weight:600;">${data[key].validity}</span></td>
+              <td>
+                <button onclick="editUser('${key}')" class="btn btn-edit"><i class="fas fa-key"></i></button>
+                <button onclick="delUser('${key}')" class="btn btn-del"><i class="fas fa-trash"></i></button>
+              </td>
+            </tr>`;
+        }
+      }
+    });
+
+    window.editUser = async (u) => {
+      const { value: newPassword } = await Swal.fire({
+        title: 'Update Password',
+        input: 'text',
+        inputLabel: 'Enter new password for ' + u,
+        inputPlaceholder: 'New Password...',
+        showCancelButton: true,
+        confirmButtonColor: '#4361ee'
+      });
+
+      if (newPassword) {
+        await update(ref(db, `userinfo/${u}`), { password: newPassword });
+        Swal.fire('Updated!', 'Password has been changed.', 'success');
+      }
+    };
+
+    window.delUser = (u) => {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#f72585',
+        cancelButtonColor: '#aaa',
+        confirmButtonText: 'Yes, delete it!'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          await remove(ref(db, `userinfo/${u}`));
+          Swal.fire('Deleted!', 'User has been removed.', 'success');
+        }
+      });
+    };
+
+    window.logout = () => {
+      Swal.fire({
+        title: 'Logout?',
+        text: "Are you sure you want to exit?",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#4361ee'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          localStorage.clear();
+          window.location.href = "login.html";
+        }
+      });
+    };
+  </script>
+</body>
+</html>
